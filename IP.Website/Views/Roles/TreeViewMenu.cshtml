@@ -1,0 +1,63 @@
+﻿@model IEnumerable<IP.Website.Models.RolesModel>
+@{
+    Layout = null;
+}
+
+
+@foreach (var item in Model.FirstOrDefault().menuRolesList.Where(s => s.parentId == 0))
+{
+    <li>
+        @if (@item.Id > 0 || Model.FirstOrDefault().menuRolesList.Where(s => s.parentId == @item.menuId).Where(s => s.Id > 0 ).Count() > 0 )
+        {
+            <input type="checkbox" name="MenuSelect" class="MenuSelect" checked value="@item.menuId">
+        }
+        else
+        {
+            <input type="checkbox" name="MenuSelect" class="MenuSelect" value="@item.menuId">
+        }
+        @item.menuName
+
+        @if (Model.FirstOrDefault().menuRolesList.Where(s => s.parentId == item.menuId).Count() > 0)
+        {
+        var subMenu = Model.FirstOrDefault().menuRolesList.Where(s => s.parentId == item.menuId).ToList();
+        <ul>
+            @foreach (var subItem in subMenu)
+            {
+            <li>
+                @if (@subItem.Id > 0)
+                {
+                    <input type="checkbox" name="MenuSelect" class="MenuSelect" checked value="@subItem.menuId">
+                }
+                else
+                {
+                    <input type="checkbox" name="MenuSelect" class="MenuSelect" value="@subItem.menuId">
+                }
+                @subItem.menuName
+                @if (Model.FirstOrDefault().menuRolesList.Where(s => s.parentId == subItem.menuId).Count() > 0)
+                {
+                    var leafMenu = Model.FirstOrDefault().menuRolesList.Where(s => s.parentId == @subItem.menuId).ToList();
+                    <ul>
+                        @foreach (var leafItem in leafMenu)
+                        {
+                            <li>
+                                @if (leafItem.Id > 0)
+                                {
+                                    <input type="checkbox" name="MenuSelect" class="MenuSelect" checked value="@leafItem.menuId">
+                                }
+                                else
+                                {
+                                    <input type="checkbox" name="MenuSelect" class="MenuSelect" value="@leafItem.menuId">
+                                }
+                                @leafItem.menuName
+                            </li>
+                        }
+                    </ul>
+                }
+            </li>
+            }
+
+        </ul>
+        }
+    </li>
+
+}

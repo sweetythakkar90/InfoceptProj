@@ -1,0 +1,1562 @@
+﻿@model IEnumerable<IP.Website.Models.JobsModel>
+@{
+    ViewBag.Title = "Jobs";
+}
+<style>
+    #wizard {
+        height: 500px;
+        width: 950px;
+        background-color: white;
+        padding: 20px;
+    }
+
+    .tab-content > .active {
+        display: inline-block;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <br />
+        <h1 class="page-header">
+            Jobs
+
+        </h1>
+        <ol class="breadcrumb">
+
+
+            <li>
+                @Html.ActionLink("Job Console", "Index", "JobMenu")
+            </li>
+            <li class="active">Jobs</li>
+        </ol>
+        <div id="wizard">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#jobDetails" role="tab" data-toggle="tab">Jobs Details</a>
+                </li>
+                <li role="presentation">
+                    <a href="#projDetails" role="tab" data-toggle="tab">Project Details</a>
+                </li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="jobDetails">
+                    <div class="row">
+
+                        @if (Session["MenuDetails"] != null)
+                        {
+
+                            var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                            var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                            if (uRights != null)
+                            {
+                                if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                                {
+                                    <div class="col-lg-12">
+
+                                        <div style="padding:15px 0px">
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddJobs">Add</button>
+
+                                        </div>
+                                    </div>
+                                }
+
+                            }
+                        }
+                        <div class="col-lg-12">
+                            <table id="tbl_Jobs" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th hidden>ID</th>
+                                        <th hidden>projId</th>
+                                        <th hidden>projJobTypeId</th>
+                                        <th>Jobs</th>
+                                        <th>Project</th>
+                                        <th>Job Type</th>
+                                        <th>Location Code</th>
+                                        <th>Completion Date</th>
+                                        <th hidden>jobStatusId</th>
+                                        <th>Job Status</th>
+                                        <th>Action</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <th scope="row" hidden>@item.Id</th>
+                                            <td id="projId" hidden>@item.projId</td>
+                                            <td id="projJobTypeId" hidden>@item.projJobTypeId</td>
+                                            <td id="jobDesc">@item.jobDesc</td>
+                                            <td id="projName">@item.projName</td>
+                                            <td id="jobTypeName">@item.jobTypeName</td>
+                                            <td id="locCode">@item.locCode</td>
+                                            <td id="completionDate">@item.completionDate</td>
+                                            <td id="jobStatusId" hidden>@item.jobStatusId</td>
+                                            <td id="jobStatusName">@item.jobStatusName</td>
+                                            <td>
+                                                @if (Session["MenuDetails"] != null)
+                                                {
+
+                                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                                    if (uRights != null)
+                                                    {
+                                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                                        {
+                                                            <a data-value="@item.Id" href="#EditJobs" data-toggle="modal"
+                                                               data-target="#EditJobs" class="btnEdit">Edit</a>
+                                                            <text>|</text>
+                                                        }
+                                                    }
+
+                                                    <a data-value="@item.Id" href="#DisplayOtherDetails" data-toggle="modal" id=""
+                                                       data-target="#DisplayOtherDetails" class="btnEdit">OtherDetails</a>
+
+                                                    if (uRights != null)
+                                                    {
+                                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                                        {
+                                                            <text>|</text>
+                                                            @Html.ActionLink("Delete", "Delete", new { id = item.Id },
+
+                                                         new { onclick = "return confirm('Are sure you want to delete this record?');" })
+
+
+                                                        }
+                                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+
+                                                        {
+                                                            <text>|</text>
+                                                            <a data-value="@item.Id" href="#ViewJobs" data-toggle="modal"
+                                                               data-target="#ViewJobs" class="btnEdit">View</a>
+                                                        }
+                                                    }
+                                                }
+                                            </td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="projDetails">
+                    <div role="tabpanel" class="tab-pane active" id="projDetails">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div class="modal fade" id="AddJobs" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddJobs" action="@Url.Action("Insert", "Jobs")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Job</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+
+                                <div class="form-group col-lg-12">
+                                    <label for="jobDesc">Job Description</label>
+                                    <input type="text" id="jobDesc" class="form-control" name="jobDesc" required>
+                                </div>
+                                @if (ViewBag.ProjId == 0)
+                                {
+                                    <div class="form-group col-lg-12">
+                                        <label for="projId">Project</label>
+
+                                        @Html.DropDownList("projId", ViewBag.ProjectList as IEnumerable<SelectListItem>, "Select", new
+                                   {
+                                       @class = "form-control"
+
+                                   })
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="form-group col-lg-12">
+                                        <label for="projId">Project</label>
+                                        @Html.DropDownList("projId", ViewBag.ProjectList as IEnumerable<SelectListItem>,"Select", new
+                                   {
+                                       @class = "form-control",
+                                       @Value = ViewBag.ProjId,
+                                       @disabled = true
+                                   })
+                                    </div>
+
+
+                                }
+                                <div class="form-group col-lg-12">
+                                    <label for="projJobTypeId">Job Type</label>
+                                    @Html.DropDownList("projJobTypeId", ViewBag.ProjectJobTypeList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="locCode">Location Code</label>
+                                    <input type="text" id="locCode" class="form-control" name="locCode" required>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="completionDate">Completion Date</label>
+                                    <input type="date" id="completionDate" class="form-control" name="completionDate" required>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="jobStatusId">Job Status</label>
+                                    @Html.DropDownList("jobStatusId", ViewBag.JobStatusList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditJobs" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditJobs" action="@Url.Action("Update", "Jobs")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Job</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="Id">Id</label>
+                                    <input type="text" id="Id" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobDesc">Job Description</label>
+                                    <input type="text" id="editJobDesc" class="form-control" name="jobDesc" required>
+                                </div>
+                                @if (ViewBag.ProjId == 0)
+                                {
+                                    <div class="form-group col-lg-12">
+                                        <label for="projId">Project</label>
+
+                                        @Html.DropDownList("projId", ViewBag.ProjectList as IEnumerable<SelectListItem>, "Select", new
+                                   {
+                                       @class = "form-control",
+                                       @id="editProjId"
+
+                                   })
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="form-group col-lg-12">
+                                        <label for="projId">Project</label>
+                                        @Html.DropDownList("projId", ViewBag.ProjectList as IEnumerable<SelectListItem>,"Select", new
+                                   {
+                                       @class = "form-control",
+                                       @id = "editProjId",
+                                       @disabled = true
+                                   })
+                                    </div>
+
+
+                                }
+                                <div class="form-group col-lg-12">
+                                    <label for="projJobTypeId">Job Type</label>
+                                    @Html.DropDownList("projJobTypeId", ViewBag.ProjectJobTypeList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control",
+                                        @id = "editProjJobTypeId"
+                                    })
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="locCode">Location Code</label>
+                                    <input type="text" id="editLocCode" class="form-control" name="locCode" required>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="completionDate">Completion Date</label>
+                                    <input type="date" id="editCompletionDate" class="form-control" name="completionDate" required>
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="jobStatusId">Job Status</label>
+                                    @Html.DropDownList("jobStatusId", ViewBag.JobStatusList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id = "editJobStatusId"
+                               })
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="DisplayOtherDetails" role="dialog">
+    <div class="modal-dialog">
+        <div id="wizard">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#jobAssignment" role="tab" data-toggle="tab">Job Assigments</a>
+                </li>
+                <li role="presentation">
+                    <a href="#jobRates" role="tab" data-toggle="tab">Job Rates</a>
+                </li>
+                <li role="presentation">
+                    <a href="#jobBOQVariation" role="tab" data-toggle="tab">Job BOQ Variation</a>
+                </li>
+                <li role="presentation">
+                    <a href="#jobComplaints" role="tab" data-toggle="tab">Job Complaints</a>
+                </li>
+                <li role="presentation">
+                    <a href="#jobDefects" role="tab" data-toggle="tab">Job Defects</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="jobAssignment">
+                    <form id="form_jobAssignment" role="form">
+                        <div class="modal-dialog">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h3><label id="jobDesc" name="jobDesc"></label></h3>
+                                </div>
+                                @if (Session["MenuDetails"] != null)
+                                {
+
+                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                    if (uRights != null)
+                                    {
+                                        if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                                        {
+                                            <div class="col-lg-12">
+                                                <div style="padding:15px 0px">
+                                                    <button class="btn btn-sm" type="button" data-toggle="modal" data-target="#AddJobAssignment">Add</button>
+
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                }
+                                <div class="col-lg-12">
+                                    <table id="tbl_JobAssignment" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+
+                                                <th hidden>Id</th>
+                                                <th hidden>JobId</th>
+                                                <th hidden>teamId</th>
+                                                <th>Team</th>
+                                                <th hidden>subcontractorID</th>
+                                                <th>Sub-Contractor</th>
+                                                <th>Job Assign Date</th>
+                                                <th>Start Time</th>
+                                                <th>End Time</th>
+                                                <th>Notes</th>
+                                                <th>Action</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault() != null)
+                                            {
+                                                foreach (var item in Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault().jobAssign)
+                                                {
+                                                    <tr>
+
+                                                        <th scope="row" hidden>@item.Id</th>
+                                                        <td id="jobID" hidden>@item.jobID</td>
+                                                        <td id="teamID" hidden>@item.teamID</td>
+                                                        <td id="teamName">@item.teamName</td>
+                                                        <td id="subcontractorID" hidden>@item.subcontractorID</td>
+                                                        <td id="subConName">@item.subConName</td>
+                                                        <td id="jobAssignDate">@item.jobAssignDate</td>
+                                                        <td id="startTime">@item.startTime</td>
+                                                        <td id="endTime">@item.endTime</td>
+                                                        <td id="notes">@item.notes</td>
+                                                        <td>
+                                                            @if (Session["MenuDetails"] != null)
+                                                            {
+
+                                                                var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                                                var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                                                if (uRights != null)
+                                                                {
+                                                                    if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                                                    {
+                                                                        <a data-value="@item.Id" href="#EditJobAssignment" data-toggle="modal"
+                                                                           data-target="#EditJobAssignment" class="btnEdit">Edit</a>
+                                                                    }
+                                                                    if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                                                    {
+                                                                        <text>|</text>
+                                                                        @Html.ActionLink("Delete", "Delete", "JobAssignment", new { id = item.Id },
+                                                                             new { onclick = "return confirm('Are sure you want to delete this record?');" })
+                                                                    }
+                                                                    if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                                                    {
+                                                                        <text>|</text>
+                                                                        <a data-value="@item.Id" href="#ViewJobAssignment" data-toggle="modal"
+                                                                           data-target="#ViewJobAssignment" class="btnEdit">View</a>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </td>
+
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div role="tabpanel" class="tab-pane" id="jobRates">
+                    <div role="tabpanel" class="tab-pane active" id="jobRates">
+                        <form id="form_JobRates" role="form">
+                            <div class="modal-dialog">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h3><label id="jobDesc" name="jobDesc"></label></h3>
+                                    </div>
+                                    @if (Session["MenuDetails"] != null)
+                                    {
+
+                                        var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                        var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                        if (uRights != null)
+                                        {
+                                            if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                                            {
+                                                <div class="col-lg-12">
+                                                    <div style="padding:15px 0px">
+                                                        <button class="btn btn-sm" type="button" data-toggle="modal" data-target="#AddJobRates">Add</button>
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    <div class="col-lg-12">
+                                        <table id="tbl_JobRates" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+
+                                                    <th hidden>Id</th>
+                                                    <th hidden>JobId</th>
+                                                    <th hidden>ProjRatesId</th>
+                                                    <th>SOR Code</th>
+                                                    <th>Proposed BOQ Quantity</th>
+                                                    <th>Actual BOQ Quantity</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault() != null)
+                                                {
+                                                    foreach (var item in Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault().jobRates)
+                                                    {
+                                                        <tr>
+
+                                                            <th scope="row" hidden>@item.Id</th>
+                                                            <td id="jobID" hidden>@item.jobID</td>
+                                                            <td id="projRatesId" hidden>@item.projRatesId</td>
+                                                            <td id="SORCode">@item.SORCode</td>
+                                                            <td id="propsedBOQQuantity">@item.propsedBOQQuantity</td>
+                                                            <td id="actualBOQQuantity">@item.actualBOQQuantity</td>
+                                                            <td>
+                                                                @if (Session["MenuDetails"] != null)
+                                                                {
+
+                                                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                                                    if (uRights != null)
+                                                                    {
+                                                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                                                        {
+                                                                            <a data-value="@item.Id" href="#EditJobRates" data-toggle="modal"
+                                                                               data-target="#EditJobRates" class="btnEdit">Edit</a>
+
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            @Html.ActionLink("Delete", "Delete", "JobRates", new { id = item.Id },
+
+                                                                                   new { onclick = "return confirm('Are sure you want to delete this record?');" })
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            <a data-value="@item.Id" href="#ViewJobRates" data-toggle="modal"
+                                                                               data-target="#ViewJobRates" class="btnEdit">View</a>
+
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="jobBOQVariation">
+                    <div role="tabpanel" class="tab-pane active" id="jobBOQVariation">
+                        <form id="form_JobBOQVariation" role="form">
+                            <div class="modal-dialog">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h3><label id="jobDesc" name="jobDesc"></label></h3>
+                                    </div>
+                                    @if (Session["MenuDetails"] != null)
+                                    {
+
+                                        var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                        var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                        if (uRights != null)
+                                        {
+                                            if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                                            {
+                                                <div class="col-lg-12">
+                                                    <div style="padding:15px 0px">
+                                                        <button class="btn btn-sm" type="button" data-toggle="modal" data-target="#AddJobBOQVariation">Add</button>
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    <div class="col-lg-12">
+                                        <table id="tbl_JobBOQVariation" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+
+                                                    <th hidden>Id</th>
+                                                    <th hidden>JobId</th>
+                                                    <th hidden>JobRatesId</th>
+                                                    <th>SOR Code</th>
+                                                    <th>BOQ Quantity</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault() != null)
+                                                {
+                                                    foreach (var item in Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault().jobBOQVariation)
+                                                    {
+                                                        <tr>
+
+                                                            <th scope="row" hidden>@item.Id</th>
+                                                            <td id="jobID" hidden>@item.jobID</td>
+                                                            <td id="jobRatesId" hidden>@item.jobRatesId</td>
+                                                            <td id="SORCode">@item.SORCode</td>
+                                                            <td id="BOQQuantity">@item.BOQQuantity</td>
+                                                            <td>
+                                                                @if (Session["MenuDetails"] != null)
+                                                                {
+
+                                                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                                                    if (uRights != null)
+                                                                    {
+                                                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                                                        {
+                                                                            <a data-value="@item.Id" href="#EditJobBOQVariation" data-toggle="modal"
+                                                                               data-target="#EditJobBOQVariation" class="btnEdit">Edit</a>
+
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            @Html.ActionLink("Delete", "Delete", "JobBOQVariation", new { id = item.Id },
+
+                                                                                  new { onclick = "return confirm('Are sure you want to delete this record?');" })
+
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            <a data-value="@item.Id" href="#ViewJobBOQVariation" data-toggle="modal"
+                                                                               data-target="#ViewJobBOQVariation" class="btnEdit">View</a>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="jobComplaints">
+                    <div role="tabpanel" class="tab-pane active" id="jobComplaints">
+                        <form id="form_JobComplaints" role="form">
+                            <div class="modal-dialog">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h3><label id="jobDesc" name="jobDesc"></label></h3>
+                                    </div>
+                                    @if (Session["MenuDetails"] != null)
+                                    {
+
+                                        var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                        var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                        if (uRights != null)
+                                        {
+                                            if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                                            {
+                                                <div class="col-lg-12">
+                                                    <div style="padding:15px 0px">
+                                                        <button class="btn btn-sm" type="button" data-toggle="modal" data-target="#AddJobComplaints">Add</button>
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    <div class="col-lg-12">
+                                        <table id="tbl_JobComplaints" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+
+                                                    <th hidden>Id</th>
+                                                    <th hidden>JobId</th>
+                                                    <th>Description</th>
+                                                    <th hidden>memberId</th>
+                                                    <th>Member</th>
+                                                    <th hidden>subcontractorID</th>
+                                                    <th>Sub-Contractor</th>
+                                                    <th>Due Date</th>
+                                                    <th>Priority</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault() != null)
+                                                {
+                                                    foreach (var item in Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault().jobComplaints)
+                                                    {
+                                                        <tr>
+
+                                                            <th scope="row" hidden>@item.Id</th>
+                                                            <td id="jobID" hidden>@item.jobID</td>
+                                                            <td id="compliantDesc">@item.compliantDesc</td>
+                                                            <td id="memberId" hidden>@item.memberId</td>
+                                                            <td id="memberName">@item.memberName</td>
+                                                            <td id="subcontractorID" hidden>@item.subcontractorID</td>
+                                                            <td id="subConName">@item.subConName</td>
+                                                            <td id="dueDate">@item.dueDate</td>
+                                                            <td id="priority">@item.priority</td>
+                                                            <td>
+                                                                @if (Session["MenuDetails"] != null)
+                                                                {
+
+                                                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                                                    if (uRights != null)
+                                                                    {
+                                                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                                                        {
+                                                                            <a data-value="@item.Id" href="#EditJobComplaints" data-toggle="modal"
+                                                                               data-target="#EditJobComplaints" class="btnEdit">Edit</a>
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            @Html.ActionLink("Delete", "Delete", "JobComplaints", new { id = item.Id },
+
+                                                                           new { onclick = "return confirm('Are sure you want to delete this record?');" })
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            <a data-value="@item.Id" href="#ViewJobComplaints" data-toggle="modal"
+                                                                               data-target="#ViewJobComplaints" class="btnEdit">View</a>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="jobDefects">
+                    <div role="tabpanel" class="tab-pane active" id="jobDefects">
+                        <form id="form_JobDefects" role="form" size="100%">
+                            <div class="modal-dialog">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h3><label id="jobDesc" name="jobDesc"></label></h3>
+                                    </div>
+                                    @if (Session["MenuDetails"] != null)
+                                    {
+
+                                        var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                        var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                        if (uRights != null)
+                                        {
+                                            if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                                            {
+                                                <div class="col-lg-12">
+                                                    <div style="padding:15px 0px">
+                                                        <button class="btn btn-sm" type="button" data-toggle="modal" data-target="#AddJobDefects">Add</button>
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    <div class="col-lg-12">
+                                        <table id="tbl_JobDefects" class="table table-bordered">
+                                            <thead>
+                                                <tr>
+
+                                                    <th hidden>Id</th>
+                                                    <th hidden>JobId</th>
+                                                    <th>Description</th>
+                                                    <th hidden>memberId</th>
+                                                    <th>Member</th>
+                                                    <th hidden>subcontractorID</th>
+                                                    <th>Sub-Contractor</th>
+                                                    <th>Due Date</th>
+                                                    <th>Priority</th>
+                                                    <th>Action</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault() != null)
+                                                {
+                                                    foreach (var item in Model.AsEnumerable().Where(o => o.Id == 2).FirstOrDefault().jobDefects)
+                                                    {
+                                                        <tr>
+
+                                                            <th scope="row" hidden>@item.Id</th>
+                                                            <td id="jobID" hidden>@item.jobID</td>
+                                                            <td id="defectDesc">@item.defectDesc</td>
+                                                            <td id="memberId" hidden>@item.memberId</td>
+                                                            <td id="memberName">@item.memberName</td>
+                                                            <td id="subcontractorID" hidden>@item.subcontractorID</td>
+                                                            <td id="subConName">@item.subConName</td>
+                                                            <td id="dueDate">@item.dueDate</td>
+                                                            <td id="priority">@item.priority</td>
+                                                            <td>
+                                                                @if (Session["MenuDetails"] != null)
+                                                                {
+
+                                                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+
+                                                                    if (uRights != null)
+                                                                    {
+                                                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                                                        {
+                                                                            <a data-value="@item.Id" href="#EditJobDefects" data-toggle="modal"
+                                                                               data-target="#EditJobDefects" class="btnEdit">Edit</a>
+
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+
+                                                                            @Html.ActionLink("Delete", "Delete", "JobDefects", new { id = item.Id },
+
+                                                                         new { onclick = "return confirm('Are sure you want to delete this record?');" })
+
+                                                                        }
+                                                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                                                        {
+                                                                            <text>|</text>
+                                                                            <a data-value="@item.Id" href="#ViewJobDefects" data-toggle="modal"
+                                                                               data-target="#ViewJobDefects" class="btnEdit">View</a>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="AddJobAssignment" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddJobAssignment" action="@Url.Action("Insert", "JobAssignment")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add JobAssignment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="jobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="teamID">Team</label>
+
+                                    @Html.DropDownList("teamID", ViewBag.TeamList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="subcontractorID">Sub-Contractor</label>
+                                    @Html.DropDownList("subcontractorID", ViewBag.SubContractorList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="jobAssignDate">Job Assign Date</label>
+                                    <input type="date" id="jobAssignDate" class="form-control" name="jobAssignDate">
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="startTime">Start Time</label>
+                                    <input type="time" id="startTime" class="form-control" name="startTime">
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="endTime">End Time</label>
+                                    <input type="time" id="endTime" class="form-control" name="endTime">
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="notes">Notes</label>
+                                    <input type="text" id="notes" class="form-control" name="notes">
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditJobAssignment" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditJobAssignment" action="@Url.Action("Update", "JobAssignment")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit JobAssignment</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="Id">Job Id</label>
+                                    <input type="text" id="jobAssignId" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="editJobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="teamID">Team</label>
+
+                                    @Html.DropDownList("teamID", ViewBag.TeamList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control",
+                                        @id="editTeamId"
+
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="subcontractorID">Sub-Contractor</label>
+                                    @Html.DropDownList("subcontractorID", ViewBag.SubContractorList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id = "editSubcontractorID"
+                               })
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="jobAssignDate">Job Assign Date</label>
+                                    <input type="date" id="editJobAssignDate" class="form-control" name="jobAssignDate">
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="startTime">Start Time</label>
+                                    <input type="time" id="editStartTime" class="form-control" name="startTime">
+                                </div>
+
+                                <div class="form-group col-lg-12">
+                                    <label for="endTime">End Time</label>
+                                    <input type="time" id="editEndTime" class="form-control" name="endTime">
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="notes">Notes</label>
+                                    <input type="text" id="editNotes" class="form-control" name="notes">
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="AddJobRates" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddJobRates" action="@Url.Action("Insert", "JobRates")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add JobRates</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="jobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="projRatesId">Project Rates</label>
+
+                                    @Html.DropDownList("projRatesId", ViewBag.ProjectRatesList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="propsedBOQQuantity">Proposed BOQ Qty</label>
+                                    <input type="number" id="propsedBOQQuantity" class="form-control" name="propsedBOQQuantity" placeholder="0.00" required min="0" value="0" step="0.01" title="propsedBOQQuantity" pattern="^\d+(?:\.\d{1,2})?$" onblur="this.parentNode.parentNode.style.backgroundColor=/^\d+(?:\.\d{1,2})?$/.test(this.value)?'inherit':'red'">
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="actualBOQQuantity">Actual BOQ Qty</label>
+                                    <input type="number" id="actualBOQQuantity" class="form-control" name="actualBOQQuantity" placeholder="0.00" required min="0" value="0" step="0.01" title="actualBOQQuantity" pattern="^\d+(?:\.\d{1,2})?$" onblur="this.parentNode.parentNode.style.backgroundColor=/^\d+(?:\.\d{1,2})?$/.test(this.value)?'inherit':'red'" readonly>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditJobRates" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditJobRates" action="@Url.Action("Update", "JobRates")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit JobRates</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="Id">Id</label>
+                                    <input type="text" id="jobRateId" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="editRatesJobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="projRatesId">Project Rates</label>
+
+                                    @Html.DropDownList("projRatesId", ViewBag.ProjectRatesList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @Id = "editProjRatesId"
+
+                               })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="propsedBOQQuantity">Proposed BOQ Qty</label>
+                                    <input type="number" id="editPropsedBOQQuantity" class="form-control" name="propsedBOQQuantity" placeholder="0.00" required min="0" value="0" step="0.01" title="propsedBOQQuantity" pattern="^\d+(?:\.\d{1,2})?$" onblur="this.parentNode.parentNode.style.backgroundColor=/^\d+(?:\.\d{1,2})?$/.test(this.value)?'inherit':'red'">
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="actualBOQQuantity">Actual BOQ Qty</label>
+                                    <input type="number" id="editActualBOQQuantity" class="form-control" name="actualBOQQuantity" placeholder="0.00" required min="0" value="0" step="0.01" title="actualBOQQuantity" pattern="^\d+(?:\.\d{1,2})?$" onblur="this.parentNode.parentNode.style.backgroundColor=/^\d+(?:\.\d{1,2})?$/.test(this.value)?'inherit':'red'" readonly>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="AddJobComplaints" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddJobComplaints" action="@Url.Action("Insert", "JobComplaints")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Job Complaints</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="jobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="compliantDesc">Description</label>
+                                    <input type="text" id="compliantDesc" class="form-control" name="compliantDesc" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="memberId">Members</label>
+
+                                    @Html.DropDownList("memberId", ViewBag.MemberList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="subcontractorID">Sub-Contractor</label>
+                                    @Html.DropDownList("subcontractorID", ViewBag.SubContractorList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="dueDate">Due Date</label>
+                                    <input type="date" id="dueDate" class="form-control" name="dueDate">
+                                </div>
+
+
+                                <div class="form-group col-lg-12">
+                                    <label for="priority">Priority</label>
+                                    @Html.DropDownList("priority", ViewBag.PriorityList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditJobComplaints" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditJobComplaints" action="@Url.Action("Update", "JobComplaints")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Job Complaints</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="Id">Id</label>
+                                    <input type="text" id="jobComplaintId" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="editComplaintjobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="compliantDesc">Description</label>
+                                    <input type="text" id="editCompliantDesc" class="form-control" name="compliantDesc" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="memberId">Members</label>
+
+                                    @Html.DropDownList("memberId", ViewBag.MemberList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id= "editMemberId"
+
+                               })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="subcontractorID">Sub-Contractor</label>
+                                    @Html.DropDownList("subcontractorID", ViewBag.SubContractorList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id = "editComplaintsSubcontractorId"
+                               })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="dueDate">Due Date</label>
+                                    <input type="date" id="editDueDate" class="form-control" name="dueDate">
+                                </div>
+
+
+                                <div class="form-group col-lg-12">
+                                    <label for="priority">Priority</label>
+                                    @Html.DropDownList("priority", ViewBag.PriorityList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id = "editPriority"
+                               })
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="AddJobDefects" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddJobDefects" action="@Url.Action("Insert", "JobDefects")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Job Defects</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="jobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="defectDesc">Description</label>
+                                    <input type="text" id="defectDesc" class="form-control" name="defectDesc" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="memberId">Members</label>
+
+                                    @Html.DropDownList("memberId", ViewBag.MemberList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="subcontractorID">Sub-Contractor</label>
+                                    @Html.DropDownList("subcontractorID", ViewBag.SubContractorList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="dueDate">Due Date</label>
+                                    <input type="date" id="dueDate" class="form-control" name="dueDate">
+                                </div>
+
+
+                                <div class="form-group col-lg-12">
+                                    <label for="priority">Priority</label>
+                                    @Html.DropDownList("priority", ViewBag.PriorityList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+                                    })
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditJobDefects" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditJobDefects" action="@Url.Action("Update", "JobDefects")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Job Defects</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="Id">Id</label>
+                                    <input type="text" id="jobDefectsId" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="editDefectsjobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="defectDesc">Description</label>
+                                    <input type="text" id="editdefectDesc" class="form-control" name="defectDesc" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="memberId">Members</label>
+
+                                    @Html.DropDownList("memberId", ViewBag.MemberList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id= "editDefectsMemberId"
+
+                               })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="subcontractorID">Sub-Contractor</label>
+                                    @Html.DropDownList("subcontractorID", ViewBag.SubContractorList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id = "editDefectsSubcontractorId"
+                               })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="dueDate">Due Date</label>
+                                    <input type="date" id="editDueDate" class="form-control" name="dueDate">
+                                </div>
+
+
+                                <div class="form-group col-lg-12">
+                                    <label for="priority">Priority</label>
+                                    @Html.DropDownList("priority", ViewBag.PriorityList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @id = "editDefectsPriority"
+                               })
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="AddJobBOQVariation" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddJobBOQVariation" action="@Url.Action("Insert", "JobBOQVariation")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Job BOQ Variation</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="jobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobRatesId">Job Rates</label>
+
+                                    @Html.DropDownList("jobRatesId", ViewBag.JobRatesList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control"
+
+                                    })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="BOQQuantity">BOQ Qty</label>
+                                    <input type="number" id="BOQQuantity" class="form-control" name="BOQQuantity" placeholder="0.00" required min="0" value="0" step="0.01" title="BOQQuantity" pattern="^\d+(?:\.\d{1,2})?$" onblur="this.parentNode.parentNode.style.backgroundColor=/^\d+(?:\.\d{1,2})?$/.test(this.value)?'inherit':'red'">
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditJobBOQVariation" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_JobBOQVariation" action="@Url.Action("Update", "JobBOQVariation")" method="post" role="form" size="100%">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Job BOQ Variation</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="Id">Id</label>
+                                    <input type="text" id="jobBOQVariationId" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="jobID">Job Id</label>
+                                    <input type="text" id="editBOQVariationJobID" class="form-control" name="jobID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="projRatesId">Project Rates</label>
+
+                                    @Html.DropDownList("jobRatesId", ViewBag.JobRatesList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @Id = "editjobRatesId"
+
+                               })
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="BOQQuantity">Proposed BOQ Qty</label>
+                                    <input type="number" id="editBOQQuantity" class="form-control" name="BOQQuantity" placeholder="0.00" required min="0" value="0" step="0.01" title="BOQQuantity" pattern="^\d+(?:\.\d{1,2})?$" onblur="this.parentNode.parentNode.style.backgroundColor=/^\d+(?:\.\d{1,2})?$/.test(this.value)?'inherit':'red'">
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveProject" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#tbl_Jobs').DataTable();
+        $('#tbl_JobAssignment').DataTable();
+        $('#tbl_JobRates').DataTable();
+        $('#tbl_JobBOQVariation').DataTable();
+        $('#tbl_JobComplaints').DataTable();
+        $('#tbl_JobDefects').DataTable();
+
+    });
+    $(function () {
+        $('#tbl_Jobs').find('tr').on('click', function () {
+            //Get the value from address id column. Column index starts from zero
+            $("#Id").val($(this).children("th:eq(0)").html());
+            $("#editProjId option[value = " + $(this).children("td:eq(0)").html() + "]").attr('selected', 'selected');
+            $("#editProjJobTypeId option[value = " + $(this).children("td:eq(1)").html() + "]").attr('selected', 'selected');
+            $("#editJobDesc").val($(this).children("td:eq(2)").html());
+            $("#editLocCode").val($(this).children("td:eq(5)").html());
+            $("#editCompletionDate").val($.datepicker.formatDate("dd/mm/yyyy", new Date($(this).children("td:eq(6)").html())));
+            $("#editJobStatusId option[value = " + $(this).children("td:eq(7)").html() + "]").attr('selected', 'selected');
+        });
+
+        $('#tbl_JobAssignment').find('tr').on('click', function () {
+
+            //Get the value from address id column. Column index starts from zero
+            $("#jobAssignId").val($(this).children("th:eq(0)").html());
+            $("#editJobID").val($(this).children("td:eq(0)").html());
+            $("#editTeamId option[value = " + $(this).children("td:eq(1)").html() + "]").attr('selected', 'selected');
+            $("#editSubcontractorID option[value = " + $(this).children("td:eq(3)").html() + "]").attr('selected', 'selected');
+            $("#editJobAssignDate").val($.datepicker.formatDate("dd/mm/yyyy", new Date($(this).children("td:eq(5)").html())));
+            $("#editStartTime").val($.datepicker.formatDate("hh:mm:AM/PM", new Time($(this).children("td:eq(6)").html())));
+            $("#editEndTime").val($.datepicker.formatDate("hh:mm:AM/PM", new Time($(this).children("td:eq(7)").html())));
+            $("#editNotes").val($(this).children("td:eq(8)").html());
+
+        });
+        $('#tbl_JobRates').find('tr').on('click', function () {
+            $("#jobRateId").val($(this).children("th:eq(0)").html());
+            $("#editRatesJobID").val($(this).children("td:eq(0)").html());
+            $("#editProjRatesId option[value = " + $(this).children("td:eq(1)").html() + "]").attr('selected', 'selected');
+            $("#editPropsedBOQQuantity").val($(this).children("td:eq(3)").html());
+            $("#editActualBOQQuantity").val($(this).children("td:eq(4)").html());
+        });
+        $('#tbl_JobComplaints').find('tr').on('click', function () {
+            //Get the value from address id column. Column index starts from zero
+            $("#jobComplaintId").val($(this).children("th:eq(0)").html());
+            $("#editComplaintjobID").val($(this).children("td:eq(0)").html());
+            $("#editCompliantDesc").val($(this).children("td:eq(1)").html());
+            $("#editMemberId option[value = " + $(this).children("td:eq(2)").html() + "]").attr('selected', 'selected');
+            $("#editComplaintsSubcontractorId option[value = " + $(this).children("td:eq(4)").html() + "]").attr('selected', 'selected');
+            $("#editDueDate").val($.datepicker.formatDate("dd/mm/yyyy", new Date($(this).children("td:eq(6)").html())));
+            $("#editPriority").val($(this).children("td:eq(7)").html());
+
+        });
+        $('#tbl_JobDefects').find('tr').on('click', function () {
+            //Get the value from address id column. Column index starts from zero
+            $("#jobDefectsId").val($(this).children("th:eq(0)").html());
+            $("#editDefectsjobID").val($(this).children("td:eq(0)").html());
+            $("#editDefectDesc").val($(this).children("td:eq(1)").html());
+            $("#editDefectsMemberId option[value = " + $(this).children("td:eq(2)").html() + "]").attr('selected', 'selected');
+            $("#editDefectsSubcontractorId option[value = " + $(this).children("td:eq(4)").html() + "]").attr('selected', 'selected');
+            $("#editDefectsDueDate").val($.datepicker.formatDate("dd/mm/yyyy", new Date($(this).children("td:eq(6)").html())));
+            $("#editDefectsPriority").val($(this).children("td:eq(7)").html());
+
+        });
+        $('#tbl_JobBOQVariation').find('tr').on('click', function () {
+            $("#jobBOQVariationId").val($(this).children("th:eq(0)").html());
+            $("#editBOQVariationJobID").val($(this).children("td:eq(0)").html());
+            $("#editjobRatesId option[value = " + $(this).children("td:eq(1)").html() + "]").attr('selected', 'selected');
+            $("#editBOQQuantity").val($(this).children("td:eq(3)").html());
+        });
+    });
+</script>
+
+

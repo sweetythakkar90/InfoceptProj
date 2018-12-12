@@ -1,0 +1,208 @@
+﻿@model IEnumerable<IP.Website.Models.SORTypeModel>
+@{
+    ViewBag.Title = "SOR Type";
+ }
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                SOR Type
+
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    @Html.ActionLink("Management Console", "Index", "MasterMenu")
+                </li>
+                <li class="active">SOR Type</li>
+            </ol>
+            @if (Session["MenuDetails"] != null)
+            {
+
+                var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+                if (uRights != null)
+                {
+
+                    if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                    {
+                    <div style="padding:15px 0px">
+                        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddSORType">Add</button>
+                    </div>
+                    }
+                }
+            }
+        </div>
+        <div class="col-lg-12">
+            <table id="tbl_SORType" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th hidden>ID</th>
+                        <th>Name</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <th scope="row" hidden>@item.ID</th>
+                            <td>@item.name</td>
+                            <td>
+                                @if (Session["MenuDetails"] != null)
+                                {
+
+                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+                                    if (uRights != null)
+                                    {
+
+                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                        {
+                                            <a data-value="@item.ID" href="#EditSORType" data-toggle="modal"
+                                               data-target="#EditSORType" class="btnEdit">Edit</a>
+                                        }
+
+                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                        {
+                                            <text>|</text>
+
+                                            @Html.ActionLink("Delete", "Delete", new { id = item.ID },
+                                                            new { onclick = "return confirm('Are sure you want to delete this record?');" })
+
+                                        }
+                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                        {
+                                            <text>|</text>
+
+                                            <a data-value="@item.ID" href="#ViewSORType" data-toggle="modal"
+                                               data-target="#ViewSORType" class="btnEdit">View</a>
+                                        }
+                                    }
+                                }
+                                    </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade" id="AddSORType" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddSORType" action="@Url.Action("Insert", "SORType")" role="form">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add SOR Type</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="name" class="form-control" name="name" required>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveSORType" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditSORType" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditSORType" action="@Url.Action("Update", "SORType")" role="form">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit SOR Type</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12" hidden>
+                                    <label for="ID">ID</label>
+                                    <input type="text" id="ID" class="form-control" name="ID" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="EditName" class="form-control" name="name" required>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveSORType" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewSORType" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_ViewSORType" role="form">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">View SOR Type</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="name">Name</label>
+                                    <input type="text" id="ViewName" class="form-control" name="name" required disabled>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveSORType" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tbl_SORType').DataTable();
+    });
+    $(function () {
+        //Attach a click event to webgrid table
+        $('#tbl_SORType').find('tr').on('click', function () {
+            //Get the value from address id column. Column index starts from zero
+            $("#ID").val($(this).children("th:eq(0)").html());
+            $("#EditName").val($(this).children("td:eq(0)").html());
+            $("#ViewName").val($(this).children("td:eq(0)").html());
+            
+        });
+    });
+</script>

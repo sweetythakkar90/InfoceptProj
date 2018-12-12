@@ -1,0 +1,81 @@
+﻿<div class="col-md-2 col-sm-4 sidebar">
+    @{
+                    /**/
+
+                    if (ViewBag.Title == "Management Console") 
+                    {
+                        <ul class="nav nav-stacked nav-pills">
+                            @if (Session["MenuDetails"] != null)
+                            {
+
+                                var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+                                var groupByMenu = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).GroupBy(x => x.parentMenu).ToList();
+
+                                foreach (var MenuList in groupByMenu)
+                                {
+                                    foreach (var SubMenuList in MenuList)
+                                    {
+                                        <li>
+                                            @Html.ActionLink(@SubMenuList.menuName, @SubMenuList.actionName, @SubMenuList.controllerName)
+                                        </li>
+                                    }
+
+                                }
+                            }
+
+                        </ul>
+                    }
+                    else if (ViewBag.Title == "Job Console")
+                    {
+                        <ul class="nav nav-stacked nav-pills">
+                            @if (Session["MenuDetails"] != null)
+                            {
+
+                                var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+                                var groupByMenu = MenuMaster.Where(s => s.parentMenu == ViewBag.Title ).GroupBy(x => x.parentMenu).ToList();
+
+                                foreach (var MenuList in groupByMenu)
+                                {
+                                    foreach (var SubMenuList in MenuList)
+                                    {
+                                        <li>
+                                            @Html.ActionLink(@SubMenuList.menuName, @SubMenuList.actionName, @SubMenuList.controllerName)
+                                        </li>
+                                    }
+
+                                }
+                            }
+
+                        </ul>
+
+                    }
+                    else if (ViewBag.Title == "Admin Console") 
+                    {
+                        <ul class="nav nav-stacked nav-pills">
+                            @if (Session["MenuDetails"] != null)
+                            {
+
+                                var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+                                var groupByMenu = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).GroupBy(x => x.parentMenu).ToList();
+
+                                foreach (var MenuList in groupByMenu)
+                                {
+                                    foreach (var SubMenuList in MenuList)
+                                    {
+                                        <li>
+                                            @Html.ActionLink(@SubMenuList.menuName, @SubMenuList.actionName, @SubMenuList.controllerName)
+                                        </li>
+                                    }
+
+                                }
+                            }
+
+                        </ul>
+
+                    }
+    }
+
+</div>
+
+
+

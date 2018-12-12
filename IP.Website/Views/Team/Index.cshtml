@@ -1,0 +1,323 @@
+﻿@model IEnumerable<IP.Website.Models.TeamModel>
+@{
+    ViewBag.Title = "Team";
+
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Team
+
+            </h1>
+            <ol class="breadcrumb">
+                <li>
+                    @Html.ActionLink("Management Console", "Index", "MasterMenu")
+                </li>
+                <li class="active">Team</li>
+            </ol>
+            @if (Session["MenuDetails"] != null)
+            {
+
+                var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+                if (uRights != null)
+                {
+
+                    if (uRights.Where(r => r.menuName == "Add").Count() > 0)
+                    {
+                        {
+                            <div style="padding:15px 0px">
+                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddTeam">Add</button>
+                            </div>
+                        }
+                    }
+                }
+            }
+        </div>
+        <div class="col-lg-12">
+            <table id="tbl_Team" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th hidden>ID</th>
+                        <th>Team Name</th>
+                        <th hidden>StatusId</th>
+                        <th>Status Name</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <th scope="row" hidden>@item.Id</th>
+                            <td id="teamName">@item.teamName</td>
+                            <td id="statusId" hidden>@item.statusId</td>
+                            <td id="statusName">@item.statusName</td>
+                            <td>
+                                @if (Session["MenuDetails"] != null)
+                                {
+
+                                    var MenuMaster = (List<IP.Website.Models.MenuModel>)Session["MenuDetails"];
+
+                                    var uRights = MenuMaster.Where(s => s.parentMenu == ViewBag.Title).ToList();
+                                    if (uRights != null)
+                                    {
+
+                                        if (uRights.Where(r => r.menuName == "Edit").Count() > 0)
+                                        {
+                                            <a data-value="@item.Id" href="#EditTeam" data-toggle="modal"
+                                               data-target="#EditTeam" class="btnEdit">Edit</a>
+                                            <text>|</text>
+                                        }
+
+                                        if (uRights.Where(r => r.menuName == "Delete").Count() > 0)
+                                        {
+                                            @Html.ActionLink("Delete", "Delete", new { id = item.Id },
+
+                                                   new { onclick = "return confirm('Are sure you want to delete this record?');" })
+                                            <text>|</text>
+                                        }
+                                        if (uRights.Where(r => r.menuName == "View").Count() > 0)
+                                        {
+                                            <a data-value="@item.Id" href="#ViewTeam" data-toggle="modal"
+                                               data-target="#ViewTeam" class="btnEdit">View</a>
+                                        }
+                                    }
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade" id="AddTeam" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_AddTeam" action="@Url.Action("Insert", "Team")" method="post" role="form">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add Team</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="teamName">Team Name</label>
+                                    <input type="text" id="teamName" class="form-control" name="teamName" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="statusID">Status</label>
+                                    @Html.DropDownList("statusID", ViewBag.StatusList as IEnumerable<SelectListItem>, "Select", new
+                                    {
+                                        @class = "form-control",
+                                        @required = true
+                                    })
+
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="MembersMapping">Members Mapping Details</label> <br />
+                                    <table id="tbl_MembersMapping" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th> <input type="checkbox" id="chkSelectAll" /></th>
+                                                <th hidden>ID</th>
+                                                <th>Skill Sets</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.AsEnumerable().FirstOrDefault().memberMapping)
+                                            {
+                                                <tr>
+                                                    <td><input type="checkbox" name="memberMapping" class="memberMapping" value="@item.memberId"></td>
+                                                    <td id="memberId" hidden name="memberId" class="memberMapping">@Html.DisplayFor(modelItem => item.memberId) </td>
+                                                    <td id="memberName" name="memberName" class="memberMapping">@Html.DisplayFor(modelItem => item.memberName)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveTeam" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="EditTeam" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_EditTeam" action="@Url.Action("Update", "Team")" method="post" role="form">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Team</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12" hidden>
+                                    <label for="Id">Id</label>
+                                    <input type="text" id="editId" class="form-control" name="Id" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="teamName">Team Name</label>
+                                    <input type="text" id="editTeamName" class="form-control" name="teamName" required>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="statusID">Status</label>
+                                    @Html.DropDownList("statusID", ViewBag.StatusList as IEnumerable<SelectListItem>, "Select", new
+                                   {
+                                       @class = "form-control",
+                                       @Id = "editStatusTypeID",
+                                       @required = true
+                                   })
+
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="MembersMapping">Members Mapping Details</label> <br />
+                                    <table id="tbl_MembersMapping" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th> <input type="checkbox" id="chkSelectAll" /></th>
+                                                <th hidden>ID</th>
+                                                <th>Skill Sets</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.AsEnumerable().FirstOrDefault().memberMapping)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <input type="checkbox" name="memberMapping" class="memberMapping" value="@item.memberId"
+                                                               @(item.teamID > 0 ? "checked" : "")>
+                                                    </td>
+                                                    <td id="editMemberId" hidden name="memberId" class="memberMapping">@Html.DisplayFor(modelItem => item.memberId) </td>
+                                                    <td id="editMemberName" name="memberName" class="memberMapping">@Html.DisplayFor(modelItem => item.memberName)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="saveTeam" type="submit">Submit</button> @*type="button"*@
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="ViewTeam" role="dialog">
+    <div class="modal-dialog">
+        <form id="form_ViewTeam" role="form">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">View Team</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="form-group col-lg-12">
+                                    <label for="teamName">Team Name</label>
+                                    <input type="text" id="viewTeamName" class="form-control" name="teamName" required disabled>
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="statusID">Status</label>
+                                    @Html.DropDownList("statusID", ViewBag.StatusList as IEnumerable<SelectListItem>, "Select", new
+                               {
+                                   @class = "form-control",
+                                   @Id = "viewStatusTypeID",
+                                   @required = true,
+                                       @disabled = true
+                               })
+
+                                </div>
+                                <div class="form-group col-lg-12">
+                                    <label for="MembersMapping">Members Mapping Details</label> <br />
+                                    <table id="tbl_MembersMapping" class="table table-bordered" disabled>
+                                        <thead>
+                                            <tr>
+                                                <th> <input type="checkbox" id="chkSelectAll" /></th>
+                                                <th hidden>ID</th>
+                                                <th>Skill Sets</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.AsEnumerable().FirstOrDefault().memberMapping)
+                                            {
+                                                <tr>
+                                                    <td><input type="checkbox" name="memberMapping" class="memberMapping" value="@item.memberId" disabled></td>
+                                                    <td id="viewMemberId" hidden name="memberId" class="memberMapping">@Html.DisplayFor(modelItem => item.memberId) </td>
+                                                    <td id="viewMemberName" name="memberName" class="memberMapping">@Html.DisplayFor(modelItem => item.memberName)</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#tbl_Team').DataTable();
+
+    });
+
+    $(function () {
+        //Attach a click event to webgrid table
+        $('#tbl_Team').find('tr').on('click', function () {
+            //Get the value from address id column. Column index starts from zero
+
+            $("#editId").val($(this).children("th:eq(0)").html());
+            $("#editTeamName").val($(this).children("td:eq(0)").html());
+            $("#editStatusTypeID option[value = " + $(this).children("td:eq(1)").html() + "]").attr('selected', 'selected');
+
+            $("#viewId").val($(this).children("th:eq(0)").html());
+            $("#viewTeamName").val($(this).children("td:eq(0)").html());
+            $("#viewStatusTypeID option[value = " + $(this).children("td:eq(1)").html() + "]").attr('selected', 'selected');
+
+        });
+    });
+
+
+</script>
+
